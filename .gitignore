@@ -1,0 +1,48 @@
+# Файли та директорії, що зберігаються в системах ОС
+.DS_Store
+Thumbs.db
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+
+# Віртуальні середовища
+venv/
+env/
+*.env
+
+# IDE та редактори коду
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Модулі та бібліотеки
+node_modules/
+bower_components/
+
+# Налаштування PyCharm
+.idea/
+
+# Логи
+*.log
+
+# Файли бази даних
+*.sqlite3
+*.db
+
+# Налаштування тестування
+.coverage
+nosetests.xml
+coverage.xml
+
+# Документи
+*.pdf
+*.docx
+
+# Інші
+*.bak
+*.swp
+*.swo

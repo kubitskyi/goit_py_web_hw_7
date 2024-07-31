@@ -1,16 +1,17 @@
 [tool.poetry]
-name = "goit-py-web-hw-7"
+name = "hm7"
 version = "0.1.0"
+package-mode = false
 description = ""
-authors = ["kubitskyi <fenixm22@gmail.com>"]
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "goit_py_web_hw_7"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-sqlalchemy = "^2.0.17"
-alembic = "^1.11.1"
-faker = "^18.11.2"
+python = "^3.12"
+sqlalchemy = "^2.0.31"
+alembic = "^1.13.2"
+psycopg2-binary = "^2.9.9"
+faker = "^26.0.0"
 
 
 [build-system]

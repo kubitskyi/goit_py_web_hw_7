@@ -1,15 +1,29 @@
-from datetime import date, datetime, timedelta
-from random import randint, choice
-import faker
 from sqlalchemy import select
-
-from src.models import Teacher, Student, Discipline, Grade, Group
+from random import choice, randint
+from datetime import date, datetime, timedelta
+import faker
+from src.models import Teacher, Group, Discipline, Student, Grade
 from src.db import session
 
-'''
-Создаем свою ф-цию для получения списка дат, в которые происходит учебный процесс.
-Для упрощения выбрасываем только дни, которые попадают на выходные.
-'''
+
+EDUCATION_START = datetime.strptime("2023-09-01", "%Y-%m-%d")
+EDUCATION_END = datetime.strptime("2024-05-30", "%Y-%m-%d")
+STUDENT_COUNT = 50
+TEACHER_COUNT = 4
+GROUPS = ["Ґрифіндор", "Гафелпаф", "Рейвенклов","Слизерин"]
+DISCIPLINES = [
+            "Історія магії",
+            "Захист від темних мистецтв",   
+            "Трансфігурація",
+            "Зіллєваріння",
+            "Маглознавство",
+            "Догляд за магічними тваринами",
+            "Літання на мітлах",
+            "Закляття"
+        ]
+
+
+fake = faker.Faker()
 
 
 def date_range(start: date, end: date) -> list:
@@ -21,85 +35,77 @@ def date_range(start: date, end: date) -> list:
         current_date += timedelta(1)
     return result
 
+def create_teachers(session):
+    for _ in range(TEACHER_COUNT):
+        teacher = Teacher(fullname = fake.name())
+        session.add(teacher)
+    session.commit()
+    print("Add teachers complite")
 
-'''
-Функция создания БД, в качестве параметра - передаем путь к файлу с SQL скриптом
-'''
 
-'''Функция генерации фейковых данных и заполнения ими БД'''
+def create_groups(session):
+    for grp in GROUPS:
+        group = Group(name = grp)
+        session.add(group)
+    session.commit()
+    print("Add groups complite")
+
+def create_disciplines(session):
+    teachers_id = session.execute(select(Teacher.id)).scalars().all()
+    for dscp in DISCIPLINES:
+        discipline = Discipline(
+            name = dscp,
+            teacher_id = choice(teachers_id)
+        )
+        session.add(discipline)
+    session.commit()
+    print("Add disciplines complite")
 
 
-def fill_data():
-    # Не все данные будут динамические. Создаем списки предметов и групп
-    disciplines = [
-            "Історія магії",
-            "Захист від темних мистецтв",
-            "Трансфігурація",
-            "Зіллєваріння",
-            "Маглознавство",
-            "Догляд за магічними тваринами",
-            "Літання на мітлах",
-            "Закляття"
-        ]
+def create_students(session):
+    groups_id = session.execute(select(Group.id)).scalars().all()
+    for _ in range(STUDENT_COUNT + 1):
+        student = Student(
+            fullname = fake.name(),
+            group_id = choice(groups_id)
+        )
+        session.add(student)
 
-    groups = ["Ґрифіндор", "Гафелпаф", "Рейвенклов","Слизерин"]
+    session.commit()
+    print("Add students complite")
 
-    # Создаем объект библиотеки Faker. В качестве параметра передаем local 'uk-UA'
-    # Больше - https://faker.readthedocs.io/en/master/locales.html
-    fake = faker.Faker()
-    number_of_teachers = 5
-    number_of_students = 50
 
-    def seed_teachers():
-        for _ in range(number_of_teachers):
-            teacher = Teacher(fullname=fake.name())
-            session.add(teacher)
+def create_grades(session):
+    start_date = EDUCATION_START
+    end_date = EDUCATION_END
+    date_ranges = date_range(start_date,end_date)
+    students_id = session.execute(select(Student.id)).scalars().all()
+    disciplines_id = session.execute(select(Discipline.id)).scalars().all()
+
+    for dt in date_ranges:
+        random_disciplinen_id =  choice(disciplines_id)
+        random_students_id = [choice(students_id) for _ in range(1,6)]
+        for st in random_students_id:
+            grade = Grade(
+                grade = randint(1,5),
+                date_of = dt.date(),
+                student_id = st,
+                discipline_id = random_disciplinen_id
+            )
+            session.add(grade)
+
         session.commit()
-
-    def seed_disciplines():
-        teacher_ids = session.scalars(select(Teacher.id)).all()
-        for discipline in disciplines:
-            session.add(Discipline(name=discipline, teacher_id=choice(teacher_ids)))
-        session.commit()
-
-    def seed_groups():
-        for group in groups:
-            session.add(Group(name=group))
-        session.commit()
-
-    def seed_students():
-        group_ids = session.scalars(select(Group.id)).all()
-        for _ in range(number_of_students):
-            student = Student(fullname=fake.name(), group_id=choice(group_ids))
-            session.add(student)
-        session.commit()
-
-    def seed_grades():
-        # дата начала учебного процесса
-        start_date = datetime.strptime("2020-09-01", "%Y-%m-%d")
-        # дата окончания учебного процесса
-        end_date = datetime.strptime("2021-05-25", "%Y-%m-%d")
-        d_range = date_range(start=start_date, end=end_date)
-        discipline_ids = session.scalars(select(Discipline.id)).all()
-        student_ids = session.scalars(select(Student.id)).all()
-
-        for d in d_range:  # пройдемся по каждой дате
-            random_id_discipline = choice(discipline_ids)
-            random_ids_student = [choice(student_ids) for _ in range(5)]
-            # проходимся по списку "везучих" студентов, добавляем их в результирующий список
-            # и генерируем оценку
-            for student_id in random_ids_student:
-                grade = Grade(grade=randint(1, 12), date_of=d, student_id=student_id,
-                              discipline_id=random_id_discipline)
-                session.add(grade)
-        session.commit()
-
-    seed_teachers()
-    seed_disciplines()
-    seed_groups()
-    seed_students()
-    seed_grades()
+    print("Add grades complite")
 
 
-if __name__ == '__main__':
-    fill_data()
+def fill_data(session):
+    create_teachers(session)
+    create_groups(session)
+    create_disciplines(session)
+    create_students(session)
+    create_grades(session)
+   
+    
+
+if __name__ == "__main__":
+    fill_data(session)
