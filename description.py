@@ -3,7 +3,7 @@ text = """
     Методи моделей (--action", -a): "create", "list", "update", "remove".
     
     --id - ід моделі в бд
-    --name - імя моделі в бд Teacher/Group/Student/Discipline
+    --name, -n - імя моделі в бд Teacher/Group/Student/Discipline
     --grade - оцінка
     --teacher_id - де необхіний ід вчителя
     --group_id - де необхіний ід групи
