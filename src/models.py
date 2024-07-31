@@ -33,7 +33,7 @@ class Discipline(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String)
     teacher_id: Mapped[int] = mapped_column(ForeignKey('teachers.id', ondelete='CASCADE'))
-    teacher: Mapped["Group"] = relationship('Teacher', backref='disciplines')
+    teacher: Mapped["Teacher"] = relationship("Teacher", backref='disciplines')
 
 
 class Grade(Base):
@@ -41,8 +41,8 @@ class Grade(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     grade: Mapped[int] = mapped_column(Integer)
     date_of: Mapped[Optional[datetime.date]] = mapped_column(Date, nullable=True)
-    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete='CASCADE'))
-    discipline_id: Mapped[int] = mapped_column(ForeignKey("disciplines.id", ondelete='CASCADE'))
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete='CASCADE'), nullable=False)
+    discipline_id: Mapped[int] = mapped_column(ForeignKey("disciplines.id", ondelete='CASCADE'), nullable=False)
     student: Mapped["Student"] = relationship('Student', backref='grades')
     discipline: Mapped["Discipline"] = relationship('Discipline', backref='grades')
 

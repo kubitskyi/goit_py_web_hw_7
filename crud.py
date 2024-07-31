@@ -56,9 +56,11 @@ class CRUDTeacher(CRUD):
 
     def remove(self,args):
         id = args.get('id')
+        if id == None:
+            return f"--id is required argument"
         teacher = self.session.query(Teacher).filter(Teacher.id == id).first()
         if teacher:
-            self.session.delete(teacher)
+            self.session.query(Teacher).filter(Teacher.id == id).delete()
             self.session.commit()
             return f"Teacher with ID {id} removed."
         else:
@@ -73,6 +75,8 @@ class CRUDGroup(CRUD):
 
     def create(self, args):
         name = args.get('name')
+        if name == None:
+            return f"--name is required argument"
         new_group = Group(name = name)
         self.session.add(new_group)
         self.session.commit()
@@ -80,8 +84,11 @@ class CRUDGroup(CRUD):
     
     def update(self, args):
         name = args.get('name')
-        group_id = args.get('group_id')
-
+        group_id = args.get('id')
+        if group_id == None:
+            return f"--id is required argument"
+        if name == None:
+            name = self.session.query(Group.name).filter(Group.id == id).scalar()
         group = self.session.query(Group).filter(Group.id == group_id).first()
         if group:
             group.name = name
@@ -94,14 +101,16 @@ class CRUDGroup(CRUD):
         return self.session.query(Group.name).all()
         
     def remove(self,args):
-        group_id = args.get('group_id')
-        group = self.session.query(Group).filter(Group.id == group_id).first()
+        id = args.get('id')
+        if id == None:
+            return f"--id is required argument"
+        group = self.session.query(Group).filter(Group.id == id).first()
         if group:
-            self.session.delete(group)
+            self.session.query(Group).filter(Group.id == id).delete()
             self.session.commit()
-            return f"Group with ID {group_id} removed."
+            return f"Group with ID {id} removed."
         else:
-            return f"Group with ID {group_id} not found."
+            return f"Group with ID {id} not found."
 
     def close(self):
         self.session.close()
@@ -129,7 +138,7 @@ class CRUDStudent(CRUD):
     def update(self, args):
         id = args.get("id")
         if id == None:
-            return f"--шd is required argument"
+            return f"--id is required argument"
         name = args.get("name")
         group_id = args.get("group_id")
         if name == None:
@@ -154,9 +163,11 @@ class CRUDStudent(CRUD):
     
     def remove(self, args):
         id = args.get("id")
+        if id == None:
+            return f"--id is required argument"
         student = self.session.query(Student).filter(Student.id == id).first()
         if student:
-            self.session.delete(student)
+            self.session.query(Student).filter(Student.id == id).delete()
             self.session.commit()
             return f"Student with ID {id} removed."
         else:
@@ -170,7 +181,15 @@ class CRUDDiscipline(CRUD):
     def __init__(self) -> None:
         self.session = session
     
-    def create(self, name, teacher_id):
+    def create(self, args):
+        name = args.get("name")
+        teacher_id = args.get("teacher_id")
+
+        if name == None:
+            return f"--name is required argument"
+        if teacher_id == None:
+            return f"--teacher_id is required argument"
+
         new_discipline = Discipline(name = name, teacher_id = teacher_id)
         teacher = self.session.query(Teacher).filter(Teacher.id == teacher_id).one()
         self.session.add(new_discipline)
@@ -213,7 +232,7 @@ class CRUDDiscipline(CRUD):
             return f"--id is required argument"
         discipline = self.session.query(Discipline).filter(Discipline.id == id).first()
         if discipline:
-            self.session.delete(discipline)
+            self.session.query(Discipline).filter(Discipline.id == id).delete()
             self.session.commit()
             return f"Discipline with ID {id} removed."
         else:
@@ -282,7 +301,7 @@ class CRUDGrade(CRUD):
         
         grade = self.session.query(Grade).filter(Grade.id == id).first()
         if grade:
-            self.session.delete(grade)
+            self.session.query(Grade).filter(Grade.id == id).delete()
             self.session.commit()
             return f"Grade with ID {id} removed."
         else:
